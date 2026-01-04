@@ -82,10 +82,10 @@ func newObservability() *Observability {
 
 // Engine evaluates rules in sequence.
 type Engine struct {
-	name    string
-	config  *Config
-	obs     *Observability
-	closed  atomic.Bool
+	name   string
+	config *Config
+	obs    *Observability
+	closed atomic.Bool
 
 	mu      sync.RWMutex
 	rules   []Rule

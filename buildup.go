@@ -141,7 +141,7 @@ type BuildupRule struct {
 	baseRule
 	buildup   string
 	operation BuildupOperation
-	source    string  // context key containing value to add
+	source    string // context key containing value to add
 	initial   float64
 	target    string // optional: write current value to this key after adding
 }

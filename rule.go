@@ -44,7 +44,7 @@ type baseRule struct {
 	deps        []string
 }
 
-func (r *baseRule) ID() string            { return r.id }
-func (r *baseRule) Name() string          { return r.name }
-func (r *baseRule) Description() string   { return r.description }
+func (r *baseRule) ID() string             { return r.id }
+func (r *baseRule) Name() string           { return r.name }
+func (r *baseRule) Description() string    { return r.description }
 func (r *baseRule) Dependencies() []string { return r.deps }

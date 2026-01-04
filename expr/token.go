@@ -14,20 +14,20 @@ const (
 	TokenBool
 
 	// Operators
-	TokenPlus      // +
-	TokenMinus     // -
-	TokenStar      // *
-	TokenSlash     // /
-	TokenPercent   // %
-	TokenEq        // ==
-	TokenNe        // !=
-	TokenLt        // <
-	TokenLe        // <=
-	TokenGt        // >
-	TokenGe        // >=
-	TokenAnd       // &&
-	TokenOr        // ||
-	TokenNot       // !
+	TokenPlus    // +
+	TokenMinus   // -
+	TokenStar    // *
+	TokenSlash   // /
+	TokenPercent // %
+	TokenEq      // ==
+	TokenNe      // !=
+	TokenLt      // <
+	TokenLe      // <=
+	TokenGt      // >
+	TokenGe      // >=
+	TokenAnd     // &&
+	TokenOr      // ||
+	TokenNot     // !
 
 	// Delimiters
 	TokenLParen // (
