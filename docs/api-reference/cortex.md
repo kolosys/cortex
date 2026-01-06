@@ -220,7 +220,7 @@ func (*baseRule) ID() string
 
 
 ```go
-func (*Engine) Name() string
+func (**ast.IndexExpr) Name() string
 ```
 
 **Parameters:**
@@ -479,7 +479,7 @@ func (*baseRule) Description() string
 Evaluate sets the value on the evaluation context.
 
 ```go
-func (*AssignmentRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*AllocationRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
@@ -709,7 +709,7 @@ func ParseBuildupOperation(s string) (BuildupOperation, error)
 
 
 ```go
-func (AllocationStrategy) String() string
+func (BuildupOperation) String() string
 ```
 
 **Parameters:**
@@ -817,7 +817,7 @@ func (*baseRule) Description() string
 Evaluate adds to the buildup accumulator.
 
 ```go
-func (*AllocationRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*BuildupRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
@@ -846,7 +846,7 @@ func (*baseRule) ID() string
 
 
 ```go
-func (*Engine) Name() string
+func (**ast.IndexExpr) Name() string
 ```
 
 **Parameters:**
@@ -996,14 +996,14 @@ func (*Engine) AddRules(rules ...Rule) error
 Clone creates a copy of the engine with the same configuration and lookups, but without any rules.
 
 ```go
-func (*EvalContext) Clone() *EvalContext
+func (*Engine) Clone(name string) *Engine
 ```
 
 **Parameters:**
-  None
+- `name` (string)
 
 **Returns:**
-- *EvalContext
+- *Engine
 
 ### Close
 
@@ -1038,7 +1038,7 @@ func (*Engine) Config() *Config
 Evaluate runs all rules against the provided context.
 
 ```go
-func (*AssignmentRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*AllocationRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
@@ -1237,11 +1237,11 @@ func (*EvalContext) ErrorCount() int64
 Get retrieves a value from the context.
 
 ```go
-func (**ast.IndexExpr) Get(key any) (any, bool)
+func (*EvalContext) Get(key string) (any, bool)
 ```
 
 **Parameters:**
-- `key` (any)
+- `key` (string)
 
 **Returns:**
 - any
@@ -1445,14 +1445,14 @@ func (*EvalContext) Lookup(tableName string, key any) (any, bool, error)
 RegisterLookup registers a lookup table in the context.
 
 ```go
-func (*Engine) RegisterLookup(lookup Lookup) error
+func (*EvalContext) RegisterLookup(lookup Lookup)
 ```
 
 **Parameters:**
 - `lookup` (Lookup)
 
 **Returns:**
-- error
+  None
 
 ### RulesEvaluated
 
@@ -1788,7 +1788,7 @@ func (*baseRule) Description() string
 Evaluate computes and stores the formula result.
 
 ```go
-func (*BuildupRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*AssignmentRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
@@ -2105,7 +2105,7 @@ func (*baseRule) Description() string
 Evaluate performs the lookup and sets the result.
 
 ```go
-func (*AllocationRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*Engine) Evaluate(ctx context.Context, evalCtx *EvalContext) (*Result, error)
 ```
 
 **Parameters:**
@@ -2113,6 +2113,7 @@ func (*AllocationRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 - `evalCtx` (*EvalContext)
 
 **Returns:**
+- *Result
 - error
 
 ### ID
@@ -2134,7 +2135,7 @@ func (*baseRule) ID() string
 
 
 ```go
-func (*Engine) Name() string
+func (**ast.IndexExpr) Name() string
 ```
 
 **Parameters:**
@@ -2200,11 +2201,11 @@ func NewMapLookup(name string, items map[K]V) **ast.IndexListExpr
 
 
 ```go
-func (**ast.IndexExpr) Get(key any) (any, bool)
+func (*EvalContext) Get(key string) (any, bool)
 ```
 
 **Parameters:**
-- `key` (any)
+- `key` (string)
 
 **Returns:**
 - any
@@ -2215,7 +2216,7 @@ func (**ast.IndexExpr) Get(key any) (any, bool)
 
 
 ```go
-func (*baseRule) Name() string
+func (**ast.IndexExpr) Name() string
 ```
 
 **Parameters:**
@@ -2405,7 +2406,7 @@ func (*EvalContext) Get(key string) (any, bool)
 
 
 ```go
-func (*Engine) Name() string
+func (**ast.IndexExpr) Name() string
 ```
 
 **Parameters:**
@@ -2604,14 +2605,16 @@ func NewRuleError(ruleID, ruleType, phase string, err error) *RuleError
 
 
 ```go
-func (*RuleError) Error() string
+func (nopLogger) Error(msg string, err error, kv ...any)
 ```
 
 **Parameters:**
-  None
+- `msg` (string)
+- `err` (error)
+- `kv` (...any)
 
 **Returns:**
-- string
+  None
 
 ### Unwrap
 

@@ -237,12 +237,11 @@ func MustCompile(input string) *Expression
 Eval evaluates the expression against a value getter.
 
 ```go
-func (*Evaluator) Eval(ctx context.Context, node Node, getter ValueGetter) (any, error)
+func (*Expression) Eval(ctx context.Context, getter ValueGetter) (any, error)
 ```
 
 **Parameters:**
 - `ctx` (context.Context)
-- `node` (Node)
 - `getter` (ValueGetter)
 
 **Returns:**
@@ -316,7 +315,7 @@ func (*Expression) Raw() string
 RegisterFunc registers a custom function for this expression.
 
 ```go
-func (*Expression) RegisterFunc(name string, fn Func)
+func (*Evaluator) RegisterFunc(name string, fn Func)
 ```
 
 **Parameters:**
