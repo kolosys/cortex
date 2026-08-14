@@ -8,12 +8,13 @@ Complete API documentation for the cortex package.
 
 Package cortex provides a rules engine for business logic evaluation.
 
-Cortex supports five rule types:
+Cortex supports six rule types:
   - Assignment: Set values directly on the context
   - Formula: Calculate values using expressions or functions
   - Allocation: Distribute values across multiple targets
   - Lookup: Retrieve values from lookup tables
   - Buildup: Accumulate/aggregate values (running totals, sums, etc.)
+  - Policy: Match a tool and optional path glob; set deny/allow/ask
 
 Example:
 
@@ -25,6 +26,20 @@ Example:
 	)
 	result, err := engine.Evaluate(ctx, cortex.NewEvalContext())
 
+
+## Constants
+
+**PolicyKeyTool, PolicyKeyPath, PolicyKeyTarget, PolicyKeyDecision**
+
+EvalContext keys read and written by PolicyRule.
+
+
+```go
+const PolicyKeyTool = "tool"
+const PolicyKeyPath = "path"
+const PolicyKeyTarget = "target"
+const PolicyKeyDecision = "decision"
+```
 
 ## Variables
 
@@ -220,7 +235,7 @@ func (*baseRule) ID() string
 
 
 ```go
-func (**ast.IndexExpr) Name() string
+func (*Engine) Name() string
 ```
 
 **Parameters:**
@@ -312,7 +327,7 @@ func ParseAllocationStrategy(s string) (AllocationStrategy, error)
 
 
 ```go
-func (BuildupOperation) String() string
+func (AllocationStrategy) String() string
 ```
 
 **Parameters:**
@@ -479,7 +494,7 @@ func (*baseRule) Description() string
 Evaluate sets the value on the evaluation context.
 
 ```go
-func (*AllocationRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*FormulaRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
@@ -522,7 +537,7 @@ func (*Engine) Name() string
 Target returns the target key for this assignment.
 
 ```go
-func (*FormulaRule) Target() string
+func (*AssignmentRule) Target() string
 ```
 
 **Parameters:**
@@ -567,11 +582,13 @@ type Buildup struct {
 Add adds a value to the buildup.
 
 ```go
-func (*Buildup) Add(value float64)
+func (nopMetrics) Add(name string, v float64, kv ...any)
 ```
 
 **Parameters:**
-- `value` (float64)
+- `name` (string)
+- `v` (float64)
+- `kv` (...any)
 
 **Returns:**
   None
@@ -709,7 +726,7 @@ func ParseBuildupOperation(s string) (BuildupOperation, error)
 
 
 ```go
-func (BuildupOperation) String() string
+func (AllocationStrategy) String() string
 ```
 
 **Parameters:**
@@ -817,7 +834,7 @@ func (*baseRule) Description() string
 Evaluate adds to the buildup accumulator.
 
 ```go
-func (*BuildupRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*AssignmentRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
@@ -846,7 +863,7 @@ func (*baseRule) ID() string
 
 
 ```go
-func (**ast.IndexExpr) Name() string
+func (*Engine) Name() string
 ```
 
 **Parameters:**
@@ -996,14 +1013,14 @@ func (*Engine) AddRules(rules ...Rule) error
 Clone creates a copy of the engine with the same configuration and lookups, but without any rules.
 
 ```go
-func (*Engine) Clone(name string) *Engine
+func (*EvalContext) Clone() *EvalContext
 ```
 
 **Parameters:**
-- `name` (string)
+  None
 
 **Returns:**
-- *Engine
+- *EvalContext
 
 ### Close
 
@@ -1038,11 +1055,11 @@ func (*Engine) Config() *Config
 Evaluate runs all rules against the provided context.
 
 ```go
-func (*AllocationRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*PolicyRule) Evaluate(_ context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
-- `ctx` (context.Context)
+- `_` (context.Context)
 - `evalCtx` (*EvalContext)
 
 **Returns:**
@@ -1081,14 +1098,14 @@ func (*Engine) Name() string
 RegisterLookup registers a lookup table.
 
 ```go
-func (*Engine) RegisterLookup(lookup Lookup) error
+func (*EvalContext) RegisterLookup(lookup Lookup)
 ```
 
 **Parameters:**
 - `lookup` (Lookup)
 
 **Returns:**
-- error
+  None
 
 ### RegisterLookups
 
@@ -1181,14 +1198,14 @@ func NewEvalContext() *EvalContext
 Clone creates a shallow copy of the context.
 
 ```go
-func (*Engine) Clone(name string) *Engine
+func (*EvalContext) Clone() *EvalContext
 ```
 
 **Parameters:**
-- `name` (string)
+  None
 
 **Returns:**
-- *Engine
+- *EvalContext
 
 ### Delete
 
@@ -1237,11 +1254,11 @@ func (*EvalContext) ErrorCount() int64
 Get retrieves a value from the context.
 
 ```go
-func (*EvalContext) Get(key string) (any, bool)
+func (**ast.IndexExpr) Get(key any) (any, bool)
 ```
 
 **Parameters:**
-- `key` (string)
+- `key` (any)
 
 **Returns:**
 - any
@@ -1788,11 +1805,11 @@ func (*baseRule) Description() string
 Evaluate computes and stores the formula result.
 
 ```go
-func (*AssignmentRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+func (*PolicyRule) Evaluate(_ context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
-- `ctx` (context.Context)
+- `_` (context.Context)
 - `evalCtx` (*EvalContext)
 
 **Returns:**
@@ -1873,7 +1890,7 @@ func (*FormulaRule) SetFormulaFunc(fn FormulaFunc)
 Target returns the target key for this formula.
 
 ```go
-func (*FormulaRule) Target() string
+func (*AssignmentRule) Target() string
 ```
 
 **Parameters:**
@@ -2105,7 +2122,7 @@ func (*baseRule) Description() string
 Evaluate performs the lookup and sets the result.
 
 ```go
-func (*Engine) Evaluate(ctx context.Context, evalCtx *EvalContext) (*Result, error)
+func (*FormulaRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
 ```
 
 **Parameters:**
@@ -2113,7 +2130,6 @@ func (*Engine) Evaluate(ctx context.Context, evalCtx *EvalContext) (*Result, err
 - `evalCtx` (*EvalContext)
 
 **Returns:**
-- *Result
 - error
 
 ### ID
@@ -2135,7 +2151,7 @@ func (*baseRule) ID() string
 
 
 ```go
-func (**ast.IndexExpr) Name() string
+func (*Engine) Name() string
 ```
 
 **Parameters:**
@@ -2216,7 +2232,7 @@ func (*EvalContext) Get(key string) (any, bool)
 
 
 ```go
-func (**ast.IndexExpr) Name() string
+func (*Engine) Name() string
 ```
 
 **Parameters:**
@@ -2300,6 +2316,232 @@ type Observability struct {
 | Logger | `Logger` |  |
 | Metrics | `Metrics` |  |
 | Tracer | `Tracer` |  |
+
+### PolicyConfig
+PolicyConfig configures a policy rule.
+
+#### Example Usage
+
+```go
+// Create a new PolicyConfig
+policyconfig := PolicyConfig{
+    ID: "example",
+    Name: "example",
+    Description: "example",
+    Deps: [],
+    Tool: "example",
+    Pattern: "example",
+    Decision: PolicyDecision{},
+}
+```
+
+#### Type Definition
+
+```go
+type PolicyConfig struct {
+    ID string
+    Name string
+    Description string
+    Deps []string
+    Tool string
+    Pattern string
+    Decision PolicyDecision
+}
+```
+
+### Fields
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| ID | `string` |  |
+| Name | `string` |  |
+| Description | `string` |  |
+| Deps | `[]string` |  |
+| Tool | `string` | Tool is the tool name to match. "*" matches any tool. |
+| Pattern | `string` | Pattern is an optional glob matched against path (or target) in the eval context. * matches one path segment; ** matches across segments. Empty pattern matches any path. |
+| Decision | `PolicyDecision` | Decision is written to the context on match: deny, allow, or ask. When several rules match, precedence is deny > allow > ask. |
+
+### PolicyDecision
+PolicyDecision is the outcome of a matching policy rule.
+
+#### Example Usage
+
+```go
+// Example usage of PolicyDecision
+var value PolicyDecision
+// Initialize with appropriate value
+```
+
+#### Type Definition
+
+```go
+type PolicyDecision string
+```
+
+### PolicyRule
+PolicyRule matches a tool name and optional path glob, then sets a decision.
+
+#### Example Usage
+
+```go
+// Create a new PolicyRule
+policyrule := PolicyRule{
+
+}
+```
+
+#### Type Definition
+
+```go
+type PolicyRule struct {
+}
+```
+
+### Constructor Functions
+
+### MustPolicy
+
+MustPolicy creates a new policy rule, panicking on error.
+
+```go
+func MustPolicy(cfg PolicyConfig) *PolicyRule
+```
+
+**Parameters:**
+- `cfg` (PolicyConfig)
+
+**Returns:**
+- *PolicyRule
+
+### NewPolicy
+
+NewPolicy creates a new policy rule.
+
+```go
+func NewPolicy(cfg PolicyConfig) (*PolicyRule, error)
+```
+
+**Parameters:**
+- `cfg` (PolicyConfig)
+
+**Returns:**
+- *PolicyRule
+- error
+
+## Methods
+
+### Decision
+
+Decision returns the decision written on match.
+
+```go
+func (*PolicyRule) Decision() PolicyDecision
+```
+
+**Parameters:**
+  None
+
+**Returns:**
+- PolicyDecision
+
+### Dependencies
+
+
+
+```go
+func (*baseRule) Dependencies() []string
+```
+
+**Parameters:**
+  None
+
+**Returns:**
+- []string
+
+### Description
+
+
+
+```go
+func (*baseRule) Description() string
+```
+
+**Parameters:**
+  None
+
+**Returns:**
+- string
+
+### Evaluate
+
+Evaluate matches tool and path against the rule; on match it sets decision.
+
+```go
+func (*FormulaRule) Evaluate(ctx context.Context, evalCtx *EvalContext) error
+```
+
+**Parameters:**
+- `ctx` (context.Context)
+- `evalCtx` (*EvalContext)
+
+**Returns:**
+- error
+
+### ID
+
+
+
+```go
+func (*baseRule) ID() string
+```
+
+**Parameters:**
+  None
+
+**Returns:**
+- string
+
+### Name
+
+
+
+```go
+func (*Engine) Name() string
+```
+
+**Parameters:**
+  None
+
+**Returns:**
+- string
+
+### Pattern
+
+Pattern returns the path glob, or empty if any path matches.
+
+```go
+func (*PolicyRule) Pattern() string
+```
+
+**Parameters:**
+  None
+
+**Returns:**
+- string
+
+### Tool
+
+Tool returns the tool matcher.
+
+```go
+func (*PolicyRule) Tool() string
+```
+
+**Parameters:**
+  None
+
+**Returns:**
+- string
 
 ### RangeEntry
 RangeEntry represents a single range in a range lookup.
@@ -2391,11 +2633,11 @@ func NewTaxBracketLookup(name string, brackets []TaxBracket) **ast.IndexExpr
 
 
 ```go
-func (*EvalContext) Get(key string) (any, bool)
+func (**ast.IndexExpr) Get(key any) (any, bool)
 ```
 
 **Parameters:**
-- `key` (string)
+- `key` (any)
 
 **Returns:**
 - any

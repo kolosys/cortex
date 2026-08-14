@@ -237,11 +237,12 @@ func MustCompile(input string) *Expression
 Eval evaluates the expression against a value getter.
 
 ```go
-func (*Expression) Eval(ctx context.Context, getter ValueGetter) (any, error)
+func (*Evaluator) Eval(ctx context.Context, node Node, getter ValueGetter) (any, error)
 ```
 
 **Parameters:**
 - `ctx` (context.Context)
+- `node` (Node)
 - `getter` (ValueGetter)
 
 **Returns:**
