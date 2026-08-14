@@ -34,6 +34,7 @@ const (
 	RuleTypeAllocation RuleType = "allocation"
 	RuleTypeLookup     RuleType = "lookup"
 	RuleTypeBuildup    RuleType = "buildup"
+	RuleTypePolicy     RuleType = "policy"
 )
 
 // baseRule provides common fields for all rule types.

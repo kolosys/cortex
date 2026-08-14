@@ -1,11 +1,12 @@
 // Package cortex provides a rules engine for business logic evaluation.
 //
-// Cortex supports five rule types:
+// Cortex supports six rule types:
 //   - Assignment: Set values directly on the context
 //   - Formula: Calculate values using expressions or functions
 //   - Allocation: Distribute values across multiple targets
 //   - Lookup: Retrieve values from lookup tables
 //   - Buildup: Accumulate/aggregate values (running totals, sums, etc.)
+//   - Policy: Match a tool and optional path glob; set deny/allow/ask
 //
 // Example:
 //

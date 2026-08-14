@@ -10,7 +10,7 @@ A general-purpose rules engine for Go supporting multiple rule types, sequential
 
 ## Features
 
-- **Five Rule Types**: Assignment, Formula, Allocation, Lookup, Buildup
+- **Six Rule Types**: Assignment, Formula, Allocation, Lookup, Buildup, Policy
 - **Expression DSL**: Simple expressions for config-driven formulas
 - **Thread-Safe**: Concurrent-safe evaluation context
 - **Observable**: Pluggable logging, metrics, and tracing
@@ -171,6 +171,21 @@ cortex.MustBuildup(cortex.BuildupConfig{
 ```
 
 **Operations**: `BuildupSum`, `BuildupMin`, `BuildupMax`, `BuildupAvg`, `BuildupCount`, `BuildupProduct`
+
+### Policy
+
+Match a tool and optional path glob, then set `deny`, `allow`, or `ask` on the context. Precedence is deny > allow > ask.
+
+```go
+cortex.MustPolicy(cortex.PolicyConfig{
+    ID:       "edit-src",
+    Tool:     "edit", // "*" matches any tool
+    Pattern:  "src/**",
+    Decision: cortex.PolicyAllow,
+})
+```
+
+`Evaluate` reads `tool` and `path` (or `target`) from the eval context. Unmatched rules leave `decision` unset.
 
 ## Expression DSL
 
